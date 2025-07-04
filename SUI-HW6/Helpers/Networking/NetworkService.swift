@@ -1,0 +1,78 @@
+//
+//  NetworkManager.swift
+//  SUI-HW6
+//
+//  Created by Dim on 01.07.2025.
+//
+
+import Foundation
+
+enum RequestType {
+    case list
+    case fullInfo(String)
+    case related([String])
+    
+    var path: String {
+        switch self {
+        case .list:
+            return "/photos"
+        case .fullInfo(let id):
+            return "/photos/\(id)"
+        case .related(let topics):
+            if let topics = topics.first {
+                var str = "/search/photos?query="
+                topics.forEach { str += "\($0)+" }
+                str.removeLast()
+                return str
+            } else {
+                return "/photos"
+            }
+        }
+    }
+}
+
+struct PhotoShortInfo: Decodable {
+    let id: String
+    let urls: Urls
+    let description: String?
+    let alt_description: String?
+    let updated_at: String
+    
+    struct Urls : Decodable {
+        let small: String
+        let regular: String
+        let thumb: String
+    }
+}
+
+struct PhotoFullInfo : Decodable {
+    let tags: [Tag]
+    struct Tag : Decodable {
+        let title: String
+    }
+}
+
+struct NetworkService {
+    let urlString: String
+    
+    func sendRequest<T : Decodable>(for requestType: RequestType, params: [String: String] = [:], headers: [String: String] = [:], responseType: T.Type, completion: @escaping (T) -> Void) {
+        var urlComponents = URLComponents(string: urlString)
+        urlComponents?.path = requestType.path
+        
+        var request = URLRequest(url: urlComponents!.url!)
+        request.httpMethod = "GET"
+        params.forEach { request.addValue( $0.value/*"application/json"*/, forHTTPHeaderField: $0.key/*"Content-Type"*/) }
+        
+        request.allHTTPHeaderFields = headers
+        
+        URLSession.shared.dataTask(with: request) {data, _, error in
+            guard error == nil, let data = data else { return }
+            do {
+                let response = try JSONDecoder().decode(T.self, from: data)
+                completion(response)
+            } catch {
+                print("Error decoding JSON: \(error)")
+            }
+        }.resume()
+    }
+}
