@@ -27,7 +27,7 @@ struct TableViewWrapper: UIViewRepresentable {
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(news: news) { news in
+        Coordinator(path: $path, news: news) { news in
             print(news)
             path.append(.related(news))
         }
@@ -45,12 +45,14 @@ struct TableViewWrapper: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, UITableViewDataSource, UITableViewDelegate {
+        @Binding var path: [Page]
         var news: [News]
         weak var tableView: UITableView?
         
         var completion: (News) -> Void
         
-        init(news: [News], completion: @escaping (News) -> Void) {
+        init(path: Binding<[Page]>, news: [News], completion: @escaping (News) -> Void) {
+            self._path = path
             self.news = news
             self.completion = completion
         }

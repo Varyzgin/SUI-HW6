@@ -9,12 +9,16 @@ import SwiftUI
 
 struct MainPageView: View {
     @Binding var path: [Page]
+    @EnvironmentObject var appEnvironment: AppEnvironment
     @StateObject var viewModel: MainPageViewModel = .init()
     
     var body: some View {
         TableViewWrapper(path: $path, news: $viewModel.content.news)
             .onAppear {
-            viewModel.fetchData()
+                if appEnvironment.launching {
+                    viewModel.fetchData()
+                    appEnvironment.launching.toggle()
+                }
         }
     }
 }

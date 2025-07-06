@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+internal import Combine
 
 enum Page: Hashable {
     case main, related(News)
@@ -13,15 +14,19 @@ enum Page: Hashable {
 
 @main
 struct SUI_HW6App: App {
-    @State var path: [Page] = [.main]
+    @State var path: [Page] = []
+    @StateObject var appEnvironment: AppEnvironment = .init()
+    
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
+            NavigationStack(path: $path) {
                 MainPageView(path: $path)
+                    .environmentObject(appEnvironment)
                     .navigationDestination(for: Page.self) { page in
                         switch page {
                         case .main:
                             MainPageView(path: $path)
+                                .environmentObject(appEnvironment)
                         case .related(let news):
                             RelatedPageView(news: news)
                         }

@@ -10,6 +10,7 @@ internal import Combine
 
 class MainPageViewModel: ObservableObject {
     @Published var content: MainPageModel = .init(title: "Новости", news: [])
+
     let service = NetworkService(urlString: "https://api.unsplash.com")
     
     func fetchData() {
