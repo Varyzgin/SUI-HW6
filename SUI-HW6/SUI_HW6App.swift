@@ -19,6 +19,9 @@ struct SUI_HW6App: App {
     
     var body: some Scene {
         WindowGroup {
+//            RelatedPageView(news: 
+//                News(id: "gknjrng", title: "fkjsn", thumbImageStringUrl: "jrngek", regularImageStringUrl: "rgjek", recentness: "krgnekw")
+//            )
             NavigationStack(path: $path) {
                 MainPageView(path: $path)
                     .environmentObject(appEnvironment)

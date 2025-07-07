@@ -26,7 +26,6 @@ struct RelatedPageView: UIViewControllerRepresentable {
             controller.updateData(viewModel.content.relatedNewsData)
         }
     }
-    
 }
 
 final class RelatedPageViewController: UIViewController {
@@ -45,10 +44,20 @@ final class RelatedPageViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let collectionView = UICollectionView(frame: view.frame, collectionViewLayout: layout)
-//        collectionView.backgroundColor = .systemBackground
+        let sectionViewWidth = UIScreen.main.bounds.width - 2 * Margins.L
+        
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(sectionViewWidth + Margins.S), heightDimension: .absolute(sectionViewWidth))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 1)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .groupPaging
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: Margins.L - Margins.XS, bottom: 0, trailing: Margins.L - Margins.XS)
+        
+        let collectionView = UICollectionView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: sectionViewWidth)), collectionViewLayout: UICollectionViewCompositionalLayout(section: section))
+        collectionView.dataSource = self
         collectionView.register(GalleryViewCell.self, forCellWithReuseIdentifier: GalleryViewCell.id)
         return collectionView
     }()
@@ -56,6 +65,7 @@ final class RelatedPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.addSubview(collectionView)
     }
 }
 extension RelatedPageViewController: UICollectionViewDataSource {

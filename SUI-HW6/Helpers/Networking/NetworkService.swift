@@ -49,6 +49,18 @@ struct PhotoFullInfo : Decodable {
     }
 }
 
+struct PhotoRelatedInfo : Decodable {
+    let results: [Result]
+    struct Result: Decodable {
+        let urls: Urls
+        struct Urls : Decodable {
+            let small: String
+            let regular: String
+            let thumb: String
+        }
+    }
+}
+
 struct NetworkService {
     let urlString: String
     
@@ -69,7 +81,7 @@ struct NetworkService {
                 let response = try JSONDecoder().decode(T.self, from: data)
                 completion(response)
             } catch {
-                print("Error decoding JSON: \(error)\nAnd site said: \(String(data: data, encoding: .utf8))")
+                print("Error decoding JSON: \(error)\nAnd site said: (String(data: data, encoding: .utf8))")
             }
         }.resume()
     }
